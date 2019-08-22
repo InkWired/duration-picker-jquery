@@ -16,8 +16,9 @@
         this.selectHours = null;
         this.selectMins = null;
         this.container = null;
-        this.init();
         this.oldElemType = 'text';
+        this.eventToCallbackMap = {};
+        this.init();
         
         var _self = this;
     };
@@ -165,6 +166,41 @@
         this.selectHours.trigger("change");
         this.selectMins.trigger("change");
     }
+
+    /**
+     * Event attachment.
+     */
+    DurationPicker.prototype.on = function(evt, callback) {
+        this.bindEventHandler(evt, callback);
+        return this;
+    }
+
+    /**
+     * Event binder.
+     */
+    DurationPicker.prototype.bindEventHandler = function(evt, callback) {
+        if(this.eventToCallbackMap[evt] === undefined) {
+            this.eventToCallbackMap[evt] = [];
+        }
+        this.eventToCallbackMap[evt].push(callback);
+    }
+
+    /**
+     * To trigger event.
+     */
+    DurationPicker.prototype.trigger = function(evt, val) {
+        val = (val || val === 0) ? val : undefined;
+
+        if(this.eventToCallbackMap.hasOwnProperty(evt)){
+            var callbackFnArray = this.eventToCallbackMap[evt];
+            if(callbackFnArray && callbackFnArray.length) {
+                for(var i = 0; i < callbackFnArray.length; i++) {
+                    var callbackFn = callbackFnArray[i];
+                    callbackFn(val);
+                }
+            }
+        }
+    }
     
     /**
      * Called when any of the time units change.
@@ -203,6 +239,8 @@
         }
         
         this.$el.val($secs);
+
+        this.trigger('change', $secs);
     };
     
     var allowedMethods = [
@@ -238,7 +276,7 @@
             $(this).data('durationPicker', (data = new DurationPicker(this, options)));
         }
         
-        return typeof value === 'undefined' ? this : value;
+        return typeof value === 'undefined' ? data : value;
     };
  
 })( jQuery );
