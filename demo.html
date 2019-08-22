@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Duration picker for jQuery</title>
+  <meta name="description" content="A very simple jQuery color picker plugin">
+
+  <link rel="stylesheet" href="jquery.durationpicker.css">
+
+  <style>
+      h1{
+          text-align: center;
+      }
+      h3{
+          margin-top: 30px;
+      }
+      button{
+          margin-top: 10px;
+          font-size: 13px;
+          margin-left: 20px;
+      }
+
+      span{
+          padding: 10px;
+          margin-top: 0px;
+          display: block;
+          color: green;
+      }
+  </style>
+</head>
+
+<body style="padding: 25px;padding-top: 10px;">
+    <h1>Duration picker for jQuery</h1>
+
+<h3>Example 1 - Full Featured</h3>
+<input type="hidden" name="example1"/>
+<span id="btn-example1">Select Value</span>
+
+<h3>Example 2 - Full Featured with default value</h3>
+<input type="hidden" name="example2" value="96000"/>
+<span id="btn-example2">Duration (secs): 96000</span>
+
+<h3>Example 3 - Custom minutes jump (15 mins)</h3>
+<input type="hidden" name="example3" value="1800"/>
+<span id="btn-example3">Duration (secs): 1800</span>
+
+<h3>Example 4 - Hours and minutes only</h3>
+<input type="hidden" name="example4"/>
+<span id="btn-example4">Select Value</span>
+
+<h3>Example 5 - Custom labels for days, minutes and days</h3>
+<input type="hidden" name="example5"/>
+<span id="btn-example5">Select Value</span>
+
+<h3>Example 6 - No zero time allowed</h3>
+<input type="hidden" name="example6"/>
+<span id="btn-example6">Select Value</span>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="jquery.durationpicker.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('input[name=example1]').durationPicker()
+    .on("change", function($val){
+        $('#btn-example1').text("Duration (secs): " + $val);
+    });
+
+    $('input[name=example2]').durationPicker()
+    .on("change", function($val){
+        $('#btn-example2').text("Duration (secs): " + $val);
+    });
+
+    $('input[name=example3]').durationPicker({minsJump: 15})
+    .on("change", function($val){
+        $('#btn-example3').text("Duration (secs): " + $val);
+    });
+
+    $('input[name=example4]').durationPicker({showDays: false})
+    .on("change", function($val){
+        $('#btn-example4').text("Duration (secs): " + $val);
+    });
+
+    $('input[name=example5]').durationPicker({daysLabel:"d", hoursLabel: "hr", minsLabel:"mins"})
+    .on("change", function($val){
+        $('#btn-example5').text("Duration (secs): " + $val);
+    });
+
+    $('input[name=example6]').durationPicker({allowZeroTime: false})
+    .on("change", function($val){
+        $('#btn-example6').text("Duration (secs): " + $val);
+    });
+
+
+});
+</script>
+
+</body>
+</html>
