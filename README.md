@@ -44,7 +44,7 @@ In browser:
 
 [jsDelivr](https://www.jsdelivr.com/) provides CDN support for Duration Picker's CSS and JavaScript. You can find the links [here](https://cdn.jsdelivr.net/gh/InkWired/duration-picker-jquery@1.0.0/dist/).
 
-## Usage
+### Usage
 ```javascript
 $('.some-inputs').durationpicker(options);
 ```
