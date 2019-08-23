@@ -1,5 +1,5 @@
 /*!
- * Duration Picker jQuery Plugin to set duration in days, hours and minutes
+ * Duration Picker jQuery Plugin v.1.0.0 to set duration in days, hours and minutes
  * https://github.com/InkWired/duration-picker-jquery
  *
  * Copyright (c) 2019 InkWired
@@ -7,7 +7,7 @@
  * Licensed under the MIT license
  */
 
-(function( $ ) {
+(function($) {
     
     var DurationPicker = function (el, options) {
         this.$options = $.extend({}, DurationPicker.DEFAULTS, options);
@@ -19,15 +19,13 @@
         this.oldElemType = 'text';
         this.eventToCallbackMap = {};
         this.init();
-        
-        var _self = this;
     };
 
     /**
      * Default options
      */
     DurationPicker.DEFAULTS = {
-        class: 'duration-picker-container',
+        class: '',
         showDays: true,
         showHours: true,
         showMins: true,
@@ -43,6 +41,9 @@
      */
     DurationPicker.prototype.init = function () {
         this.initContainer();
+        if(this.$el.prop("disabled")){
+            this.disable();
+        }
     };
     
     /**
@@ -51,12 +52,12 @@
     DurationPicker.prototype.initContainer = function () {
         var durationPicker = this;
         
-        durationPicker.oldElemType = durationPicker.$el.attr("type");
-        durationPicker.$el.attr("type", "hidden");
+        durationPicker.oldElemType = durationPicker.$el.prop("type");
+        durationPicker.$el.prop("type", "hidden");
         
         //Main Container
         durationPicker.container = $('<div/>', {
-            class: durationPicker.$options.class
+            class: 'duration-picker-container ' + durationPicker.$options.class
         });
         
         //Setting days
@@ -86,9 +87,9 @@
         });
         
         var mins_start = 0;
-        if(!durationPicker.$options.allowZeroTime){
+        /*if(!durationPicker.$options.allowZeroTime){
             mins_start = 1;
-        }
+        }*/
         
         for($i=mins_start; $i*durationPicker.$options.minsJump<60; $i++){
             durationPicker.selectMins.append(new Option($i*durationPicker.$options.minsJump, $i*durationPicker.$options.minsJump));
@@ -126,8 +127,22 @@
      * To destroy the duration picker
      */
     DurationPicker.prototype.destroy = function () {
-        this.$el.attr("type", this.oldElemType);
+        this.$el.prop("type", this.oldElemType);
         this.container.remove();
+    };
+
+    /**
+     * To enable duration picker
+     */
+    DurationPicker.prototype.enable = function () {
+        this.container.find("select").prop("disabled", false);
+    };
+
+    /**
+     * To disable duration picker
+     */
+    DurationPicker.prototype.disable = function () {
+        this.container.find("select").prop("disabled", "disabled");
     };
     
     /**
@@ -151,7 +166,7 @@
 
         var tMins = $secsToSet%3600;
         tMins = parseInt(tMins/60);
-        if(tMins===0 && !this.$options.allowZeroTime){
+        if(tMins===0 && !this.$options.allowZeroTime && tDays===0 && tHours===0){
             tMins=this.$options.minsJump;
         }
         else if(tMins%this.$options.minsJump!==0){
@@ -159,47 +174,13 @@
         }
 
         this.selectDays.val(tDays);
-        this.selectHours.val(tHours);
-        this.selectMins.val(tMins);
-        
         this.selectDays.trigger("change");
+        
+        this.selectHours.val(tHours);
         this.selectHours.trigger("change");
+        
+        this.selectMins.val(tMins);
         this.selectMins.trigger("change");
-    }
-
-    /**
-     * Event attachment.
-     */
-    DurationPicker.prototype.on = function(evt, callback) {
-        this.bindEventHandler(evt, callback);
-        return this;
-    }
-
-    /**
-     * Event binder.
-     */
-    DurationPicker.prototype.bindEventHandler = function(evt, callback) {
-        if(this.eventToCallbackMap[evt] === undefined) {
-            this.eventToCallbackMap[evt] = [];
-        }
-        this.eventToCallbackMap[evt].push(callback);
-    }
-
-    /**
-     * To trigger event.
-     */
-    DurationPicker.prototype.trigger = function(evt, val) {
-        val = (val || val === 0) ? val : undefined;
-
-        if(this.eventToCallbackMap.hasOwnProperty(evt)){
-            var callbackFnArray = this.eventToCallbackMap[evt];
-            if(callbackFnArray && callbackFnArray.length) {
-                for(var i = 0; i < callbackFnArray.length; i++) {
-                    var callbackFn = callbackFnArray[i];
-                    callbackFn(val);
-                }
-            }
-        }
     }
     
     /**
@@ -240,43 +221,57 @@
         
         this.$el.val($secs);
 
-        this.trigger('change', $secs);
+        //this.trigger('change', $secs);
+        this.$el.trigger("change");
     };
     
     var allowedMethods = [
         'setValue',
-        'getValue',
-        'destroy'
+        'destroy',
+        'enable',
+        'disable'
     ];
  
     // Plugin definition.
     $.fn.durationPicker = function( options ) {
-        var value;
-        var data = $(this).data('durationPicker');
-        if (typeof options === 'string') {
-            
-            if ($.inArray(options, allowedMethods) < 0) {
-                throw new Error("Unknown method: " + options);
-            }
-            
-            var args = Array.prototype.slice.call(arguments, 1);
+        var args = Array.prototype.slice.call(arguments, 1);
 
-            if (!data) {
-                return;
-            }
-
-            value = data[options].apply(data, args);
-            
-            if (options === 'destroy') {
-                $(this).removeData('durationPicker');
+        if (typeof options === 'string' && options==='getValue') {
+            if($(this).length>0){
+                var data = $(this).first().data('durationPicker');;
+                return data[options].apply(data, args);
             }
         }
+        else{
+            return this.each(function() {
+                var value;
+                var data = $(this).data('durationPicker');
+                if (typeof options === 'string') {
+                    
+                    if ($.inArray(options, allowedMethods) < 0) {
+                        throw new Error("Unknown method: " + options);
+                    }
 
-        if (!data) {
-            $(this).data('durationPicker', (data = new DurationPicker(this, options)));
+                    if (!data) {
+                        return;
+                    }
+
+                    value = data[options].apply(data, args);
+                    
+                    if (options === 'destroy') {
+                        $(this).removeData('durationPicker');
+                    }
+                }
+
+                if (!data) {
+                    $(this).data('durationPicker', (data = new DurationPicker(this, options)));
+                }
+                
+                //return typeof value === 'undefined' ? data : value;
+            });
         }
-        
-        return typeof value === 'undefined' ? data : value;
     };
+
+    $.fn.durationpicker = $.fn.durationPicker;
  
-})( jQuery );
+})(jQuery);
